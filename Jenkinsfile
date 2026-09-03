@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds-v2')
         DOCKERHUB_USERNAME = "${DOCKERHUB_CREDENTIALS_USR}"
         BACKEND_IMAGE = "${DOCKERHUB_USERNAME}/student-backend"
         FRONTEND_IMAGE = "${DOCKERHUB_USERNAME}/student-frontend"
