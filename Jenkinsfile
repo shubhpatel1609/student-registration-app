@@ -19,7 +19,7 @@ pipeline {
         stage('Build Backend Image') {
             steps {
                 dir('backend') {
-                    sh "docker build -t ${BACKEND_IMAGE}:${BUILD_TAG} -t ${BACKEND_IMAGE}:latest ."
+                    bat "docker build -t %BACKEND_IMAGE%:%BUILD_TAG% -t %BACKEND_IMAGE%:latest ."
                 }
             }
         }
@@ -27,25 +27,25 @@ pipeline {
         stage('Build Frontend Image') {
             steps {
                 dir('frontend') {
-                    sh "docker build -t ${FRONTEND_IMAGE}:${BUILD_TAG} -t ${FRONTEND_IMAGE}:latest ."
+                    bat "docker build -t %FRONTEND_IMAGE%:%BUILD_TAG% -t %FRONTEND_IMAGE%:latest ."
                 }
             }
         }
 
         stage('Push Images to Docker Hub') {
             steps {
-                sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
-                sh "docker push ${BACKEND_IMAGE}:${BUILD_TAG}"
-                sh "docker push ${BACKEND_IMAGE}:latest"
-                sh "docker push ${FRONTEND_IMAGE}:${BUILD_TAG}"
-                sh "docker push ${FRONTEND_IMAGE}:latest"
+                bat "echo %DOCKERHUB_CREDENTIALS_PSW% | docker login -u %DOCKERHUB_CREDENTIALS_USR% --password-stdin"
+                bat "docker push %BACKEND_IMAGE%:%BUILD_TAG%"
+                bat "docker push %BACKEND_IMAGE%:latest"
+                bat "docker push %FRONTEND_IMAGE%:%BUILD_TAG%"
+                bat "docker push %FRONTEND_IMAGE%:latest"
             }
         }
     }
 
     post {
         always {
-            sh "docker logout"
+            bat "docker logout"
         }
         success {
             echo "Build ${BUILD_TAG} pushed to Docker Hub successfully!"
