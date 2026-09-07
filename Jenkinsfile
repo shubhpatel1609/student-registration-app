@@ -42,12 +42,12 @@ pipeline {
             }
         }
 
-                stage('Deploy to EC2') {
+                    stage('Deploy to EC2') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
                     bat """
                     icacls "%SSH_KEY%" /inheritance:r
-                    icacls "%SSH_KEY%" /grant:r "%USERNAME%:R"
+                    icacls "%SSH_KEY%" /grant:r "SYSTEM:R"
                     ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %SSH_USER%@65.2.161.62 "cd student-registration-app && git pull && docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d"
                     """
                 }
