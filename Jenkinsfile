@@ -1,14 +1,3 @@
-pipeline {
-    agent any
-
-    environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds-v2')
-        DOCKERHUB_USERNAME = "${DOCKERHUB_CREDENTIALS_USR}"
-        BACKEND_IMAGE = "${DOCKERHUB_USERNAME}/student-backend"
-        FRONTEND_IMAGE = "${DOCKERHUB_USERNAME}/student-frontend"
-        BUILD_TAG = "${BUILD_NUMBER}"
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -41,17 +30,14 @@ pipeline {
                 bat "docker push %FRONTEND_IMAGE%:latest"
             }
         }
-    }
 
-    post {
-        always {
-            bat "docker logout"
-        }
-        success {
-            echo "Build ${BUILD_TAG} pushed to Docker Hub successfully!"
-        }
-        failure {
-            echo "Build failed — check logs."
+        stage('Deploy to EC2') {
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
+                    bat """
+                    ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %SSH_USER%@65.2.161.62 "cd student-registration-app && git pull && docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d"
+                    """
+                }
+            }
         }
     }
-}
